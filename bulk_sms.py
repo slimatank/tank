@@ -1,7 +1,7 @@
 import time
-from android_sms import AndroidSMS
 import random
 from datetime import datetime
+import subprocess
 
 def generate_code():
     # Generate kode 6 digit
@@ -15,6 +15,16 @@ def read_template(template_file):
         print(f"Error membaca template: {str(e)}")
         return None
 
+def send_sms(phone_number, message):
+    try:
+        # Menggunakan termux-sms-send untuk mengirim SMS
+        command = f'termux-sms-send -n {phone_number} "{message}"'
+        subprocess.run(command, shell=True, check=True)
+        return True
+    except Exception as e:
+        print(f"Error mengirim SMS: {str(e)}")
+        return False
+
 def send_bulk_sms(txt_file, template_file):
     try:
         # Baca template pesan
@@ -25,9 +35,6 @@ def send_bulk_sms(txt_file, template_file):
         # Baca file nomor
         with open(txt_file, 'r') as file:
             phone_numbers = file.readlines()
-        
-        # Inisialisasi AndroidSMS
-        sms = AndroidSMS()
         
         # Hitung total nomor
         total_nomor = len(phone_numbers)
@@ -58,10 +65,11 @@ def send_bulk_sms(txt_file, template_file):
             print(f"Kode verifikasi: {kode}")
             
             # Kirim SMS
-            sms.send(phone_number, message)
-            
-            print(f"✓ SMS berhasil terkirim!")
-            print(f"  Waktu: {datetime.now().strftime('%H:%M:%S')}")
+            if send_sms(phone_number, message):
+                print(f"✓ SMS berhasil terkirim!")
+                print(f"  Waktu: {datetime.now().strftime('%H:%M:%S')}")
+            else:
+                print(f"❌ Gagal mengirim SMS ke {phone_number}")
             
             # Tunggu 2 detik antara setiap pengiriman
             if index < total_nomor:  # Jangan tunggu setelah nomor terakhir
