@@ -1,0 +1,7 @@
+Halo {nama},
+
+Terima kasih telah bergabung dengan layanan kami.
+Kode verifikasi Anda adalah: {kode}
+
+Salam,
+Tim Support 
